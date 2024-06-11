@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_application_1/screen/HomePage.dart';
+import 'package:go_router/go_router.dart';
 
 class RegisterScreen extends StatefulWidget {
   @override
@@ -11,21 +13,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  Future<void> _register() async {
+  Future<void> _register(BuildContext context) async {
     try {
       final UserCredential userCredential =
           await _auth.createUserWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
-      // Registro exitoso, redirige a la pantalla de inicio
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => HomeScreen()),
-      );
+      GoRouter.of(context).go('/HomePage');
     } catch (e) {
       print("Error al registrar: $e");
-      // Maneja el error de registro aquí
     }
   }
 
@@ -83,7 +80,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
             SizedBox(height: 20.0),
             ElevatedButton(
-              onPressed: _register,
+              onPressed: () => _register(context),
               child: Text('Registrarse'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.amber,
@@ -96,10 +93,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             SizedBox(height: 10.0),
             TextButton(
               onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => LoginScreen()),
-                );
+                GoRouter.of(context).go('/login');
               },
               child: Text(
                 '¿Ya tienes una cuenta? Inicia sesión',
@@ -123,21 +117,16 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  Future<void> _login() async {
+  Future<void> _login(BuildContext context) async {
     try {
       final UserCredential userCredential =
           await _auth.signInWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
-      // Inicio de sesión exitoso, redirige a la pantalla de inicio
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => HomeScreen()),
-      );
+      GoRouter.of(context).go('/HomePage');
     } catch (e) {
       print("Error al iniciar sesión: $e");
-      // Maneja el error de inicio de sesión aquí
     }
   }
 
@@ -195,7 +184,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             SizedBox(height: 20.0),
             ElevatedButton(
-              onPressed: _login,
+              onPressed: () => _login(context),
               child: Text('Iniciar Sesión'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.amber,
@@ -208,10 +197,7 @@ class _LoginScreenState extends State<LoginScreen> {
             SizedBox(height: 10.0),
             TextButton(
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => RegisterScreen()),
-                );
+                GoRouter.of(context).go('/register');
               },
               child: Text(
                 'Crear una cuenta',
@@ -220,20 +206,6 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class HomeScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Inicio'),
-      ),
-      body: Center(
-        child: Text('Bienvenido!'),
       ),
     );
   }
