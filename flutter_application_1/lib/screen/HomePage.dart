@@ -356,7 +356,79 @@ class _HomePageState extends State<HomePage> {
               title: Text('Editar Cita'),
               content: SingleChildScrollView(
                 child: Column(
-                  children: [],
+                  children: [
+                    _buildDropdown(
+                      'Doctor',
+                      _selectedDoctorId,
+                      _doctorService.obtenerDoctores(),
+                      (String? newValue) {
+                        setState(() {
+                          _selectedDoctorId = newValue;
+                        });
+                      },
+                    ),
+                    _buildDropdown(
+                      'Paciente',
+                      _selectedPacienteId,
+                      _pacienteService.obtenerPacientes(),
+                      (String? newValue) {
+                        setState(() {
+                          _selectedPacienteId = newValue;
+                        });
+                      },
+                    ),
+                    DropdownButtonFormField<String>(
+                      decoration: InputDecoration(
+                        labelText: 'Estado',
+                        border: OutlineInputBorder(),
+                      ),
+                      value: _estado,
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          _estado = newValue;
+                        });
+                      },
+                      items: ['Pendiente', 'Confirmada', 'Cancelada']
+                          .map((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                    ),
+                    TextFormField(
+                      decoration: InputDecoration(
+                        labelText: 'Fecha',
+                        border: OutlineInputBorder(),
+                      ),
+                      readOnly: true,
+                      onTap: () async {
+                        DateTime? pickedDate = await showDatePicker(
+                          context: context,
+                          initialDate: _fecha ?? DateTime.now(),
+                          firstDate: DateTime(2000),
+                          lastDate: DateTime(2101),
+                        );
+                        if (pickedDate != null) {
+                          setState(() {
+                            _fecha = pickedDate;
+                          });
+                        }
+                      },
+                      controller: TextEditingController(
+                        text: _fecha != null
+                            ? _fecha!.toString().split(' ')[0]
+                            : '',
+                      ),
+                    ),
+                    TextFormField(
+                      decoration: InputDecoration(
+                        labelText: 'Motivo',
+                        border: OutlineInputBorder(),
+                      ),
+                      controller: _motivoController,
+                    ),
+                  ],
                 ),
               ),
               actions: [
@@ -367,8 +439,44 @@ class _HomePageState extends State<HomePage> {
                   child: Text('Cancelar'),
                 ),
                 ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
+                  onPressed: () async {
+                    Doctor? doctor = await _doctorService
+                        .obtenerDoctorPorId(_selectedDoctorId!);
+                    Paciente? paciente = await _pacienteService
+                        .obtenerPacientePorId(_selectedPacienteId!);
+
+                    if (doctor != null && paciente != null) {
+                      Cita citaEditada = Cita(
+                        doctor: cita.doctor,
+                        paciente: cita.paciente,
+                        estado: _estado!,
+                        fecha: _fecha!,
+                        motivo: _motivoController.text,
+                        id: citaExistente.id,
+                      );
+                      await _citaService.actualizarCita(citaEditada);
+
+                      Navigator.of(context).pop();
+                    } else {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Text('Error'),
+                            content: Text(
+                                'No se pudo encontrar el doctor o paciente.'),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                child: Text('Aceptar'),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    }
                   },
                   child: Text('Guardar'),
                 ),
