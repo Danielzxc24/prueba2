@@ -35,6 +35,10 @@ class MyApp extends StatelessWidget {
         path: '/paciente',
         builder: (context, state) => PacienteCrudPage(),
       ),
+      GoRoute(
+        path: '/register',
+        builder: (context, state) => RegisterScreen(),
+      ),
     ],
   );
 
